@@ -557,6 +557,18 @@ public class GeneratorTests : IDisposable, IAsyncLifetime
     }
 
     [Fact]
+    public void GetObjectAcceptsSafeHandle()
+    {
+        this.generator = new Generator(this.metadataStream, DefaultTestGeneratorOptions, this.compilation, this.parseOptions);
+        Assert.True(this.generator.TryGenerate("GetObject", CancellationToken.None));
+        this.CollectGeneratedCode(this.generator);
+        this.AssertNoDiagnostics();
+        Assert.Contains(
+            this.FindGeneratedMethod("GetObject"),
+            method => method.ParameterList.Parameters[0].Type is QualifiedNameSyntax { Right: { Identifier: { ValueText: "SafeHandle" } } });
+    }
+
+    [Fact]
     public void ReleaseMethodGeneratedWithHandleStruct()
     {
         this.generator = this.CreateGenerator();
